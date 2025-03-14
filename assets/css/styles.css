@@ -1,0 +1,144 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Aboreto&family=Fondamento:ital@1&family=Heebo:wght@900&family=PT+Sans&family=Shadows+Into+Light+Two&display=swap');
+
+/* Estilos gerais */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Aboreto, Arial, sans-serif;
+    }
+
+    :root{
+      --border-inputs:#000;
+    }
+
+    body {
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    h1, h2, h3 {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      border:1px solid var(--border-inputs);
+      resize: vertical;
+      min-height: 60px;
+    }
+    button {
+      background: #0073e6;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    input[type=text],
+    input[type=cel],
+    input[type=email],
+    input[type=file]{
+      border:1px solid #000;
+    }
+
+    button:hover {
+      background: #005bb5;
+    }
+    /* Seção do formulário */
+    #resumeForm {
+      flex: 1 1 350px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    fieldset {
+      border: none;
+      margin-bottom: 15px;
+    }
+    .group {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    .group button.remove {
+      background: #d9534f;
+      margin-top: 5px;
+    }
+    /* Seção do currículo gerado */
+    #curriculo {
+      flex: 1 1 350px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    #curriculo h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #curriculo .header,
+    #curriculo .section {
+      margin-bottom: 20px;
+    }
+    #curriculo .header p {
+      margin: 2px 0;
+    }
+    #curriculo .section h2 {
+      font-size: 1.1em;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    #curriculo ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    #curriculo ul li::before {
+      content: "→ ";
+      color: #0073e6;
+    }
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+    /* CSS para impressão: oculta tudo exceto o currículo */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #curriculo, #curriculo * {
+        visibility: visible;
+      }
+      #curriculo {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
