@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerador de Currículo</title>
+  <link rel="stylesheet" type="text/css" href="./assets/css/styles.css">
+  <!-- Se não for usar o inputmask, pode remover as bibliotecas do jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Formulário de entrada -->
+    <form id="resumeForm">
+      <h1>Dados Pessoais</h1>
+      <fieldset>
+        <label for="foto">Foto:</label>
+        <input type="file" id="foto" accept="image/*">
+        
+        <label for="nome">Nome Completo:</label>
+        <input type="text" id="nome" placeholder="Ex.: Luana Alvares de Andrade" required>
+
+        <label for="cidade">Cidade e Estado:</label>
+        <input type="text" id="cidade" placeholder="Ex.: São Paulo - SP" required>
+
+        <label for="website">Website:</label>
+        <input type="text" id="website" placeholder="Ex.: https://seusite.com">
+
+        <label for="telefone">Celular/Telefone:</label>
+        <input type="text" id="telefone" placeholder="(11) 10021-1516" required>
+
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" placeholder="Ex.: email@exemplo.com" required>
+      </fieldset>
+      
+      <h1>Objetivo</h1>
+      <fieldset>
+        <textarea id="objetivo" placeholder="Descreva seu objetivo profissional..."></textarea>
+      </fieldset>
+      
+      <h1>Formação Acadêmica</h1>
+      <fieldset id="formacoes">
+        <div class="group formacao-group">
+          <label>Instituição:</label>
+          <input type="text" class="instituicao" placeholder="Ex.: Anhanguera" required>
+          <label>Curso:</label>
+          <input type="text" class="curso" placeholder="Ex.: Análise Desenvolvimento de Sistemas" required>
+          <label>Ano/Previsão:</label>
+          <input type="text" class="ano" placeholder="Ex.: Previsão (2025)" required>
+          <label>Cidade:</label>
+          <input type="text" class="cidadeFormacao" placeholder="Ex.: Ferraz de Vasconcelo - SP" required>
+          <button type="button" class="remove" onclick="removeGroup(this)">Remover Formação</button>
+        </div>
+      </fieldset>
+      <button type="button" id="addFormacao">Adicionar Formação</button>
+      
+      <h1>Experiência Profissional</h1>
+      <fieldset id="experiencias">
+        <div class="group experiencia-group">
+          <label>Empresa:</label>
+          <input type="text" class="empresa" placeholder="Ex.: Infotec" required>
+          <label>Cargo:</label>
+          <input type="text" class="cargo" placeholder="Ex.: Desenvolvedor Full Stack" required>
+          <label>Ano ou Período:</label>
+          <input type="text" class="periodo" placeholder="Ex.: 2013" required>
+          <label>Descrição:</label>
+          <textarea class="descricao" placeholder="Ex.: Criação, atualização, correção de bugs, criação de telas" required></textarea>
+          <button type="button" class="remove" onclick="removeGroup(this)">Remover Experiência</button>
+        </div>
+      </fieldset>
+      <button type="button" id="addExperiencia">Adicionar Experiência</button>
+      
+      <h1>Cursos Complementares</h1>
+      <fieldset id="cursosContainer">
+        <div class="group curso-group">
+          <label>Curso:</label>
+          <input type="text" class="cursoComplementar" placeholder="Ex.: Python OOP - 10hs - Fund.Bradesco" required>
+          <button type="button" class="remove" onclick="removeGroup(this)">Remover Curso</button>
+        </div>
+      </fieldset>
+      <button type="button" id="addCurso">Adicionar Curso</button>
+      
+      <h1>Informações Adicionais</h1>
+      <fieldset>
+        <textarea id="infoAdicional" placeholder="Ex.: Outras informações que deseja adicionar..."></textarea>
+      </fieldset>
+      
+      <button type="submit">Gerar Currículo</button>
+    </form>
+    
+    <!-- Currículo gerado -->
+    <div id="curriculo">
+      <!-- O currículo será injetado aqui via JavaScript -->
+    </div>
+  </div>
+  
+  <!-- Botão para imprimir -->
+  <div style="text-align: center; margin-top: 20px;">
+    <button id="printBtn">Imprimir Currículo</button>
+  </div>
+  
+  <script>
+    // Função de máscara genérica
+    function aplicar_mascara(value, mask) {
+      value = value.replace(/\D/g, '');
+      let formatted = '';
+      let valueIndex = 0;
+      for(let i = 0; i < mask.length && valueIndex < value.length; i++){
+        if(mask[i] === '#'){
+          formatted += value[valueIndex];
+          valueIndex++;
+        } else {
+          formatted += mask[i];
+        }
+      }
+      return formatted;
+    }
+
+    // Executa após o carregamento do DOM
+    document.addEventListener("DOMContentLoaded", function() {
+      // Anexa o evento de input para o telefone fora do submit
+      const tel = document.getElementById("telefone");
+      const telMask = '(##) #####-####';
+      tel.addEventListener('input', function(e){
+        e.target.value = aplicar_mascara(e.target.value, telMask);
+      });
+
+      // Variável para armazenar o data URL da foto
+      let fotoDataUrl = "";
+      
+      // Lê o arquivo de imagem e armazena em fotoDataUrl
+      document.getElementById("foto").addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            fotoDataUrl = evt.target.result;
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Função para remover um grupo de inputs
+      window.removeGroup = function(el) {
+        const group = el.parentElement;
+        group.parentElement.removeChild(group);
+      }
+      
+      // Adicionar nova formação
+      document.getElementById("addFormacao").addEventListener("click", function() {
+        const formacoes = document.getElementById("formacoes");
+        const novaFormacao = document.createElement("div");
+        novaFormacao.className = "group formacao-group";
+        novaFormacao.innerHTML = `
+          <label>Instituição:</label>
+          <input type="text" class="instituicao" placeholder="Ex.: Nome da Instituição" required>
+          <label>Curso:</label>
+          <input type="text" class="curso" placeholder="Ex.: Nome do Curso" required>
+          <label>Ano/Previsão:</label>
+          <input type="text" class="ano" placeholder="Ex.: Ano ou Previsão" required>
+          <label>Cidade:</label>
+          <input type="text" class="cidadeFormacao" placeholder="Ex.: Cidade - UF" required>
+          <button type="button" class="remove" onclick="removeGroup(this)">Remover Formação</button>
+        `;
+        formacoes.appendChild(novaFormacao);
+      });
+      
+      // Adicionar nova experiência
+      document.getElementById("addExperiencia").addEventListener("click", function() {
+        const experiencias = document.getElementById("experiencias");
+        const novaExperiencia = document.createElement("div");
+        novaExperiencia.className = "group experiencia-group";
+        novaExperiencia.innerHTML = `
+          <label>Empresa:</label>
+          <input type="text" class="empresa" placeholder="Ex.: Nome da Empresa" required>
+          <label>Cargo:</label>
+          <input type="text" class="cargo" placeholder="Ex.: Cargo Ocupado" required>
+          <label>Ano ou Período:</label>
+          <input type="text" class="periodo" placeholder="Ex.: Ano ou Período" required>
+          <label>Descrição:</label>
+          <textarea class="descricao" placeholder="Ex.: Descrição das atividades" required></textarea>
+          <button type="button" class="remove" onclick="removeGroup(this)">Remover Experiência</button>
+        `;
+        experiencias.appendChild(novaExperiencia);
+      });
+      
+      // Adicionar novo curso complementar
+      document.getElementById("addCurso").addEventListener("click", function() {
+        const cursosContainer = document.getElementById("cursosContainer");
+        const novoCurso = document.createElement("div");
+        novoCurso.className = "group curso-group";
+        novoCurso.innerHTML = `
+          <label>Curso:</label>
+          <input type="text" class="cursoComplementar" placeholder="Ex.: Nome do Curso" required>
+          <button type="button" class="remove" onclick="removeGroup(this)">Remover Curso</button>
+        `;
+        cursosContainer.appendChild(novoCurso);
+      });
+      
+      // Processar o formulário e gerar o currículo
+      document.getElementById("resumeForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        
+        // Dados pessoais
+        const nome = document.getElementById("nome").value.toUpperCase();
+        const cidade = document.getElementById("cidade").value.toUpperCase();
+        const website = document.getElementById("website").value;
+        const telefone = document.getElementById("telefone").value;
+        const email = document.getElementById("email").value;
+        const objetivo = document.getElementById("objetivo").value;
+        const infoAdicional = document.getElementById("infoAdicional").value;
+        
+        // Formação Acadêmica
+        const formacaoElements = document.querySelectorAll(".formacao-group");
+        let formacoesHTML = "";
+        formacaoElements.forEach(group => {
+          const instituicao = group.querySelector(".instituicao").value;
+          const curso = group.querySelector(".curso").value;
+          const ano = group.querySelector(".ano").value;
+          const cidadeFormacao = group.querySelector(".cidadeFormacao").value;
+          formacoesHTML += `<p><strong>${instituicao}</strong><br>
+                            ${curso}<br>
+                            ${ano}<br>
+                            ${cidadeFormacao}</p>`;
+        });
+        
+        // Experiência Profissional
+        const experienciaElements = document.querySelectorAll(".experiencia-group");
+        let experienciasHTML = "";
+        experienciaElements.forEach(group => {
+          const empresa = group.querySelector(".empresa").value;
+          const cargo = group.querySelector(".cargo").value;
+          const periodo = group.querySelector(".periodo").value;
+          const descricao = group.querySelector(".descricao").value;
+          experienciasHTML += `<p><strong>${empresa}</strong><br>
+                               ${cargo}<br>
+                               ${periodo}<br>
+                               ${descricao}</p>`;
+        });
+        
+        // Cursos Complementares
+        const cursoElements = document.querySelectorAll(".cursoComplementar");
+        let cursosHTML = "<ul>";
+        cursoElements.forEach(input => {
+          if(input.value.trim() !== ""){
+            cursosHTML += `<li>${input.value}</li>`;
+          }
+        });
+        cursosHTML += "</ul>";
+        
+        // Monta o HTML do currículo (sem incluir título de "Curriculum Vitae", por exemplo)
+        const curriculoHTML = `
+          <div class="header" style="text-align: center;">
+            ${fotoDataUrl ? `<img src="${fotoDataUrl}" alt="Foto" style="max-width:150px; border-radius:50%; margin-bottom:10px;">` : ""}
+            <h2>${nome}</h2>
+            <p>${cidade}</p>
+            ${website ? `<p>${website}</p>` : ""}
+            <p>${telefone}</p>
+            <p>${email}</p>
+          </div>
+          <div class="title">
+            <h3>Análista de Sistema</h3>
+          </div>
+          <div class="section">
+            <h2> OBJETIVO</h2>
+            <p>${objetivo}</p>
+          </div>
+          <div class="section">
+            <h2> FORMAÇÃO ACADÊMICA</h2>
+            ${formacoesHTML}
+          </div>
+          <div class="section">
+            <h2> EXPERIÊNCIA PROFISSIONAL</h2>
+            ${experienciasHTML}
+          </div>
+          <div class="section">
+            <h2> CURSOS COMPLEMENTARES</h2>
+            ${cursosHTML}
+          </div>
+          <div class="section">
+            <h2> INFORMAÇÕES ADICIONAIS</h2>
+            <p>${infoAdicional}</p>
+          </div>
+        `;
+        
+        document.getElementById("curriculo").innerHTML = curriculoHTML;
+        // Descer para a área do currículo
+        document.getElementById("curriculo").scrollIntoView({ behavior: 'smooth' });
+      });
+      
+      // Botão de impressão: abre a caixa de diálogo do navegador
+      document.getElementById("printBtn").addEventListener("click", function() {
+        window.print();
+      });
+    });
+  </script>
+</body>
+</html>
